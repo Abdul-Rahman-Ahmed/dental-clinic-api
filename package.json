@@ -1,0 +1,44 @@
+{
+  "name": "dental-clinic-api",
+  "version": "1.0.0",
+  "description": "An advanced dental clinic booking system API built with Node.js, Express, and MongoDB. Features include secure admin authentication, doctor-based scheduling, real-time availability management, appointment conflict prevention, email notifications, and reminder integrations.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abdul-Rahman-Ahmed/dental-clinic-api.git"
+  },
+  "keywords": [
+    "dental-clinic",
+    "appointment-scheduling",
+    "medical-api",
+    "nodejs",
+    "express",
+    "mongodb",
+    "jwt-authentication",
+    "booking-system",
+    "healthcare-saas"
+  ],
+  "author": "Abdulrahman Ahmed",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Abdul-Rahman-Ahmed/dental-clinic-api/issues"
+  },
+  "homepage": "https://github.com/Abdul-Rahman-Ahmed/dental-clinic-api#readme",
+  "devDependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "helmet": "^8.1.0",
+    "install": "^0.13.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.2.3",
+    "morgan": "^1.10.1",
+    "nodemon": "^3.1.14",
+    "npm": "^11.11.0"
+  }
+}
