@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "An advanced dental clinic booking system API built with Node.js, Express, and MongoDB. Features include secure admin authentication, doctor-based scheduling, real-time availability management, appointment conflict prevention, email notifications, and reminder integrations.",
   "main": "server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon"
   },
   "repository": {
     "type": "git",
@@ -40,5 +42,9 @@
     "morgan": "^1.10.1",
     "nodemon": "^3.1.14",
     "npm": "^11.11.0"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "zod": "^4.3.6"
   }
 }
