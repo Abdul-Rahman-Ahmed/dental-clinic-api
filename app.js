@@ -3,10 +3,11 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
-import authRoutes from "./routes/auth.routes.js";
-import requestStatus from "./utils/requestStatus.js";
-import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
+import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
+import requestStatus from "./utils/requestStatus.util.js";
 dotenv.config();
 
 const app = express();
@@ -26,6 +27,7 @@ app.use(limiter);
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
 // Handle wrong routes
 app.use((req, res, next) => {
