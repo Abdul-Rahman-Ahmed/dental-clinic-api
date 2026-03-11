@@ -1,5 +1,6 @@
 import AppError from "../utils/appError.util.js";
 import requestStatus from "../utils/requestStatus.util.js";
+
 const validate =
   (schema, property = "body") =>
   (req, res, next) => {

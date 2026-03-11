@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import requestStatus from "./utils/requestStatus.util.js";
+import AppError from "./utils/appError.util.js";
 dotenv.config();
 
 const app = express();
@@ -43,6 +44,7 @@ app.use((err, req, res, next) => {
   if (err.code === 11000) {
     err = new AppError(400, requestStatus.FAIL, "Duplicate field value");
   }
+
   return res.status(err.codeStatus ?? 500).json({
     status: err.errorStatus ?? requestStatus.ERROR,
     code: err.codeStatus ?? 500,

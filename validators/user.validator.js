@@ -27,3 +27,11 @@ export const createUserSchema = z
       .trim(),
   })
   .strict();
+
+export const createDoctorSchema = z.object({
+  workingHours: z.object({
+    start: z.string().regex(/^\d{2}:\d{2}$/, "Invalid start time"),
+    end: z.string().regex(/^\d{2}:\d{2}$/, "Invalid end time"),
+  }),
+  specialization: z.string().min(4, "specializaation is required"),
+});

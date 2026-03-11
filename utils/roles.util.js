@@ -1,3 +1,3 @@
-const roles = ["admin", "doctor", "receptionist"];
+const roles = ["admin", "doctor", "receptionist", "patient"];
 
 export default roles;

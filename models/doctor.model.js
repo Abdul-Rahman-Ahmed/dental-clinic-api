@@ -23,12 +23,18 @@ const doctorSchema = new Schema(
         required: true,
       },
       days: {
-        type: { String },
+        type: [String],
         required: true,
       },
     },
 
     created_by: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
+    modified_by: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,

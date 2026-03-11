@@ -53,8 +53,6 @@ export const loginUser = asyncWrapper(async (req, res, next) => {
   if (!isMatch)
     return next(new AppError(401, requestStatus.FAIL, "Invalid credentials"));
 
-  user.password = undefined;
-
   const accessToken = jwt.sign(
     { id: user._id, role: user.role },
     process.env.JWT_SECRET,
@@ -69,6 +67,7 @@ export const loginUser = asyncWrapper(async (req, res, next) => {
 
   user.refreshToken = await hashPassword(refreshToken);
   await user.save();
+  user.password = undefined;
 
   res
     .cookie("refreshToken", refreshToken, {
@@ -96,7 +95,10 @@ export const refreshToken = asyncWrapper(async (req, res, next) => {
     return next(new AppError(401, requestStatus.FAIL, "No refresh token"));
 
   const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-  const user = await User.findById(decoded.id);
+  const user = await User.findOne({
+    _id: decoded.id,
+    isActive: true,
+  });
   if (!user || !(await comparePassword(token, user.refreshToken)))
     return next(new AppError(403, requestStatus.FAIL, "Invalid refresh token"));
 
@@ -141,6 +143,7 @@ export const logoutUser = asyncWrapper(async (req, res) => {
   }
   res.clearCookie("refreshToken", {
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
   });
   res.json({
