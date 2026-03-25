@@ -1,7 +1,7 @@
 import AppError from "../utils/appError.util.js";
 import requestStatus from "../utils/requestStatus.util.js";
 
-const validate =
+export default validate =
   (schema, property = "body") =>
   (req, res, next) => {
     const result = schema.safeParse(req[property]);
@@ -23,5 +23,3 @@ const validate =
     req[property] = result.data;
     next();
   };
-
-export default validate;

@@ -1,67 +1,77 @@
 import asyncWrapper from "../middlewares/asyncWrapper.middleware.js";
-import AppError from "../utils/appError.util.js";
 import requestStatus from "../utils/requestStatus.util.js";
-import User from "../models/user.model.js";
-import Doctor from "../models/doctor.model.js";
-import { hashPassword } from "../utils/password.util.js";
-import mongoose from "mongoose";
+import {
+  createAdminService,
+  createDoctorService,
+  createPatientService,
+  createReceptionistService,
+} from "../services/user.service.js";
+import { calculateAge } from "../utils/date.util.js";
 
-export const addDoctor = asyncWrapper(async (req, res, next) => {
-  const session = await mongoose.startSession();
-  let doctorData;
-  try {
-    doctorData = await session.withTransaction(async () => {
-      const { name, email, phone, password, specialization, workingHours } =
-        req.body;
+export const addDoctor = asyncWrapper(async (req, res) => {
+  const result = await createDoctorService(req.body, req.user);
+  res.status(201).json({
+    code: 201,
+    status: requestStatus.SUCCESS,
+    message: "Doctor added successfully",
+    data: {
+      doctor: {
+        user_id: result.user._id,
+        name: result.user.name,
+        email: result.user.email,
+        specialization: result.doctor.specialization,
+        workingHours: result.doctor.workingHours,
+      },
+    },
+  });
+});
 
-      const exists = await User.exists({ email }).session(session);
-      if (exists)
-        throw new AppError(400, requestStatus.FAIL, "This User already exists");
+export const addPatient = asyncWrapper(async (req, res) => {
+  const result = await createPatientService(req.body, req.user);
+  res.status(201).json({
+    code: 201,
+    status: requestStatus.SUCCESS,
+    message: "Patient added successfully",
+    data: {
+      patient: {
+        user_id: result.user._id,
+        name: result.user.name,
+        email: result.user.email,
+        gender: result.patient.gender,
+        age: calculateAge(result.patient.age),
+      },
+    },
+  });
+});
 
-      const hashedPassword = await hashPassword(password, 10);
+export const addAdmin = asyncWrapper(async (req, res) => {
+  const result = await createAdminService(req.body);
+  res.status(201).json({
+    code: 201,
+    status: requestStatus.SUCCESS,
+    message: "Admin added successfully",
+    data: {
+      admin: {
+        user_id: result._id,
+        name: result.name,
+        email: result.email,
+      },
+    },
+  });
+});
 
-      const newUser = await User.create(
-        [
-          {
-            name,
-            email,
-            phone,
-            password: hashedPassword,
-            role: "doctor",
-          },
-        ],
-        { session }
-      );
-
-      await Doctor.create(
-        [
-          {
-            specialization,
-            workingHours,
-            created_by: req.user.id,
-            modified_by: req.user.id,
-            user_id: newUser[0]._id,
-          },
-        ],
-        { session }
-      );
-      return {
-        code: 201,
-        status: requestStatus.SUCCESS,
-        message: "Doctor added successfully",
-        data: {
-          doctor: {
-            user_id: newUser[0]._id,
-            name: newUser[0].name,
-            email: newUser[0].email,
-            specialization,
-            workingHours,
-          },
-        },
-      };
-    });
-  } finally {
-    session.endSession();
-  }
-  res.status(201).json(doctorData);
+export const addReceptionist = asyncWrapper(async (req, res) => {
+  const result = await createReceptionistService(req.body);
+  res.status(201).json({
+    code: 201,
+    status: requestStatus.SUCCESS,
+    message: "Receptionist added successfully",
+    data: {
+      admin: {
+        user_id: result._id,
+        name: result.name,
+        email: result.email,
+      },
+    },
+  });
 });
