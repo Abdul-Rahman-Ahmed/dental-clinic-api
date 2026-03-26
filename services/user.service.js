@@ -88,7 +88,7 @@ export const createPatientService = async (data, currentUser) => {
 
 export const createAdminService = async (data) => {
   const { name, email, phone, password } = data;
-  if (checkUserExists(email))
+  if (await checkUserExists(email))
     throw new AppError(400, requestStatus.FAIL, "This Admin already exists");
 
   const hashedPassword = await hashPassword(password, 10);
@@ -106,7 +106,7 @@ export const createAdminService = async (data) => {
 
 export const createReceptionistService = async (data) => {
   const { name, email, phone, password } = data;
-  if (checkUserExists(email))
+  if (await checkUserExists(email))
     throw new AppError(400, requestStatus.FAIL, "This user already exists");
 
   const hashedPassword = await hashPassword(password, 10);
@@ -120,4 +120,24 @@ export const createReceptionistService = async (data) => {
   });
 
   return newUser;
+};
+
+export const getUsersService = async () => {
+  return await User.find();
+};
+
+export const getAdminsService = async () => {
+  return await User.find({ role: "admin" });
+};
+
+export const getReceptionistService = async () => {
+  return await User.find({ role: "receptionist" });
+};
+
+export const getDoctorsService = async () => {
+  return await Doctor.find().populate("user_id");
+};
+
+export const getPatinetService = async () => {
+  return await Patient.find().populate("user_id");
 };

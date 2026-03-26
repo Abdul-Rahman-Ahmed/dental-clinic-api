@@ -2,7 +2,7 @@ import AppError from "../utils/appError.util.js";
 import requestStatus from "../utils/requestStatus.util.js";
 import { verifyToken } from "../utils/createToken.util.js";
 
-export default protect = (req, res, next) => {
+const protect = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -22,3 +22,5 @@ export default protect = (req, res, next) => {
     return next(new AppError(401, requestStatus.FAIL, "Not authorized"));
   }
 };
+
+export default protect;

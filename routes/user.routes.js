@@ -4,6 +4,11 @@ import {
   addDoctor,
   addPatient,
   addReceptionist,
+  getAdmins,
+  getDoctors,
+  getPatients,
+  getReceptionists,
+  getUsers,
 } from "../controllers/users.controller.js";
 import { authorized } from "../middlewares/authorized.middleware.js";
 import validate from "../middlewares/validate.middleware.js";
@@ -47,4 +52,15 @@ router.post(
   validate(createUserFullSchema),
   addReceptionist
 );
+
+router.get("/users", protect, authorized("super_admin"), getUsers);
+router.get("/admins", protect, authorized("super_admin"), getAdmins);
+router.get(
+  "/receptionists",
+  protect,
+  authorized("super_admin", "admin"),
+  getReceptionists
+);
+router.get("/doctors", protect, authorized("super_admin", "admin"), getDoctors);
+router.get("/patients", protect, authorized("receptionist"), getPatients);
 export default router;

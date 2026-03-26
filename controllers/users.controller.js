@@ -5,6 +5,11 @@ import {
   createDoctorService,
   createPatientService,
   createReceptionistService,
+  getAdminsService,
+  getDoctorsService,
+  getPatinetService,
+  getReceptionistService,
+  getUsersService,
 } from "../services/user.service.js";
 import { calculateAge } from "../utils/date.util.js";
 
@@ -74,4 +79,29 @@ export const addReceptionist = asyncWrapper(async (req, res) => {
       },
     },
   });
+});
+
+export const getUsers = asyncWrapper(async (req, res) => {
+  const users = await getUsersService();
+  res.json(users);
+});
+
+export const getAdmins = asyncWrapper(async (req, res) => {
+  const admins = await getAdminsService();
+  res.json(admins);
+});
+
+export const getReceptionists = asyncWrapper(async (req, res) => {
+  const receptionists = await getReceptionistService();
+  res.json(receptionists);
+});
+
+export const getDoctors = asyncWrapper(async (req, res) => {
+  const doctors = await getDoctorsService();
+  res.json(doctors);
+});
+
+export const getPatients = asyncWrapper(async (req, res) => {
+  const patinets = await getPatinetService();
+  res.json(patinets);
 });
