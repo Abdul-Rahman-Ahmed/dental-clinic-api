@@ -1,8 +1,10 @@
 dental-clinic-api
-── app.js
+├── README.MD
+├── app.js
 ├── config
 │   └── db.js
 ├── controllers
+│   ├── appointment.controller.js
 │   ├── auth.controller.js
 │   └── users.controller.js
 ├── middlewares
@@ -11,16 +13,19 @@ dental-clinic-api
 │   ├── authorized.middleware.js
 │   └── validate.middleware.js
 ├── models
+│   ├── appointment.model.js
 │   ├── doctor.model.js
 │   ├── patient.model.js
 │   └── user.model.js
 ├── package-lock.json
 ├── package.json
 ├── routes
+│   ├── appointment.routes.js
 │   ├── auth.routes.js
 │   └── user.routes.js
 ├── server.js
 ├── services
+│   ├── appointment.service.js
 │   ├── auth.service.js
 │   └── user.service.js
 ├── structure.txt
@@ -33,5 +38,6 @@ dental-clinic-api
 │   ├── requestStatus.util.js
 │   └── roles.util.js
 └── validators
+    ├── appointment.validator.js
     ├── auth.validator.js
     └── user.validator.js
