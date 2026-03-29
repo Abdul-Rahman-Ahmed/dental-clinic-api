@@ -4,11 +4,13 @@ import {
   addDoctor,
   addPatient,
   addReceptionist,
-  getAdmins,
+  status,
   getDoctors,
   getPatients,
-  getReceptionists,
   getUsers,
+  modifiyUser,
+  getPatient,
+  modifyPatient,
 } from "../controllers/users.controller.js";
 import { authorized } from "../middlewares/authorized.middleware.js";
 import validate from "../middlewares/validate.middleware.js";
@@ -16,6 +18,8 @@ import {
   createDoctorFullSchema,
   createUserFullSchema,
   createPatientFullSchema,
+  modifyUserSchema,
+  modifyPatientSchema,
 } from "../validators/user.validator.js";
 import protect from "../middlewares/auth.middleware.js";
 
@@ -53,14 +57,34 @@ router.post(
   addReceptionist
 );
 
-router.get("/users", protect, authorized("super_admin"), getUsers);
-router.get("/admins", protect, authorized("super_admin"), getAdmins);
+router.get("/users", protect, authorized("super_admin", "admin"), getUsers);
+router.get("/doctors", protect, authorized("super_admin", "admin"), getDoctors);
 router.get(
-  "/receptionists",
+  "/patients",
+  protect,
+  authorized("super_admin", "receptionist"),
+  getPatients
+);
+router.get(
+  "/patient/:id",
+  protect,
+  authorized("super_admin", "receptionist"),
+  getPatient
+);
+
+router.patch("/:id/status", protect, authorized("super_admin"), status);
+router.patch(
+  "/:id/modifyuser",
   protect,
   authorized("super_admin", "admin"),
-  getReceptionists
+  validate(modifyUserSchema),
+  modifiyUser
 );
-router.get("/doctors", protect, authorized("super_admin", "admin"), getDoctors);
-router.get("/patients", protect, authorized("receptionist"), getPatients);
+router.patch(
+  "/patient/:id",
+  protect,
+  authorized("receptionist"),
+  validate(modifyPatientSchema),
+  modifyPatient
+);
 export default router;

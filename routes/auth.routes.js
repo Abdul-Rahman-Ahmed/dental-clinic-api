@@ -7,11 +7,12 @@ import {
 } from "../controllers/auth.controller.js";
 import { loginSchema, registerSchema } from "../validators/auth.validator.js";
 import validate from "../middlewares/validate.middleware.js";
+
 const router = express.Router();
 
 router.post("/register", validate(registerSchema), registerUser);
 router.post("/login", validate(loginSchema), loginUser);
-router.get("/logout", logoutUser);
-router.get("/refreshToken", refreshToken);
+router.post("/logout", logoutUser);
+router.post("/refreshToken", refreshToken);
 
 export default router;

@@ -1,4 +1,4 @@
-import { regex, z } from "zod";
+import { z } from "zod";
 
 export const createDoctorFullSchema = z
   .object({
@@ -98,5 +98,61 @@ export const createPatientFullSchema = z
         const d = new Date(date);
         return d < new Date();
       }, "Date of birth cannot be in the future"),
+  })
+  .strict();
+
+export const modifyUserSchema = z
+  .object({
+    name: z
+      .string()
+      .min(3, "Username must be at least 3 characters ")
+      .max(20, "Username must not exceed 20 characters")
+      .trim()
+      .optional(),
+
+    email: z
+      .string()
+      .email("Invalid email format")
+      .toLowerCase()
+      .trim()
+      .optional(),
+    phone: z
+      .string()
+      .min(11, "Phone number too short")
+      .max(15, "Phone number too long")
+      .trim()
+      .optional(),
+  })
+  .strict();
+
+export const modifyPatientSchema = z
+  .object({
+    name: z
+      .string()
+      .min(3, "Username must be at least 3 characters ")
+      .max(20, "Username must not exceed 20 characters")
+      .trim()
+      .optional(),
+
+    email: z
+      .string()
+      .email("Invalid email format")
+      .toLowerCase()
+      .trim()
+      .optional(),
+
+    phone: z
+      .string()
+      .min(11, "Phone number too short")
+      .max(15, "Phone number too long")
+      .trim()
+      .optional(),
+
+    medical_notes: z
+      .string()
+      .min(15, "short note")
+      .max(60, "long note")
+      .trim()
+      .optional(),
   })
   .strict();
