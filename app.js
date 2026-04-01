@@ -7,6 +7,8 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import patientRoute from "./routes/patient.route.js";
+import doctorRoute from "./routes/doctor.routes.js";
 import appointmentRoutes from "./routes/appointment.routes.js";
 import requestStatus from "./utils/requestStatus.util.js";
 import AppError from "./utils/appError.util.js";
@@ -30,7 +32,10 @@ app.use(limiter);
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/patients", patientRoute);
+app.use("/api/doctors", doctorRoute);
 app.use("/api/appointments", appointmentRoutes);
+
 // Handle wrong routes
 app.use((req, res, next) => {
   return res.status(404).json({ message: "Route not found" });
