@@ -7,6 +7,8 @@ import {
   getPatientById,
   updatePatient,
   createPatient,
+  getMyProfile,
+  updateMyProfile,
 } from "../controllers/patient.controller.js";
 import {
   createPatientFullSchema,
@@ -30,11 +32,14 @@ router.get(
   getPatients
 );
 
-router.get(
-  "/:id",
+router.get("/me", protect, authorized("patient"), getMyProfile);
+
+router.patch(
+  "/me",
   protect,
-  authorized("super_admin", "receptionist"),
-  getPatientById
+  authorized("patient"),
+  validate(modifyPatientSchema),
+  updateMyProfile
 );
 
 router.patch(
@@ -43,6 +48,13 @@ router.patch(
   authorized("receptionist"),
   validate(modifyPatientSchema),
   updatePatient
+);
+
+router.get(
+  "/:id",
+  protect,
+  authorized("super_admin", "receptionist"),
+  getPatientById
 );
 
 export default router;

@@ -62,6 +62,7 @@ export const getPatientByIdService = async (id) => {
   const results = await Patient.findById(id)
     .populate("user_id", "name email phone")
     .lean();
+
   if (results === null)
     throw new AppError(400, requestStatus.FAIL, "Invalid id");
   return results;
@@ -74,16 +75,12 @@ export const updatePatientService = async (id, data) => {
   if (!name && !email && !phone && !medical_notes)
     throw new AppError(400, requestStatus.FAIL, "isn't data to update");
 
-  const patientUpdate = {};
-  if (medical_notes !== undefined) patientUpdate.medical_notes = medical_notes;
-
-  const userUpdate = {};
-  if (name !== undefined) userUpdate.name = name;
-  if (email !== undefined) userUpdate.email = email;
-  if (phone !== undefined) userUpdate.phone = phone;
-
   try {
     await session.withTransaction(async () => {
+      const patientUpdate = {};
+      if (medical_notes !== undefined)
+        patientUpdate.medical_notes = medical_notes;
+
       const newPatient = await Patient.findOneAndUpdate(
         { _id: id },
         patientUpdate,
@@ -93,7 +90,6 @@ export const updatePatientService = async (id, data) => {
       if (!newPatient)
         throw new AppError(400, requestStatus.FAIL, "Patient not found");
 
-      console.log(newPatient.user_id);
       const exists = await User.exists({
         email,
         _id: { $ne: newPatient.user_id },
@@ -104,6 +100,75 @@ export const updatePatientService = async (id, data) => {
           requestStatus.FAIL,
           "this email is already exsits"
         );
+
+      const userUpdate = {};
+      if (name !== undefined) userUpdate.name = name;
+      if (email !== undefined) userUpdate.email = email;
+      if (phone !== undefined) userUpdate.phone = phone;
+
+      const updateUser = await User.findOneAndUpdate(
+        { _id: newPatient.user_id },
+        userUpdate,
+        { returnDocument: "after", session }
+      );
+
+      if (!updateUser)
+        throw new AppError(400, requestStatus.FAIL, "user not found");
+
+      results = {
+        newPatient,
+        updateUser,
+      };
+    });
+    return results;
+  } finally {
+    session.endSession();
+  }
+};
+
+export const getMyProfileService = async (currentUser) => {
+  return await Patient.findOne({ user_id: currentUser.id })
+    .populate("user_id", "name emaill phone")
+    .lean();
+};
+
+export const updateMyProfileService = async (currentUser, data) => {
+  const session = await startSession();
+  let results;
+  let { name, email, phone, medical_notes } = data;
+  if (!name && !email && !phone && !medical_notes)
+    throw new AppError(400, requestStatus.FAIL, "isn't data to update");
+
+  try {
+    await session.withTransaction(async () => {
+      const patientUpdate = {};
+      if (medical_notes !== undefined)
+        patientUpdate.medical_notes = medical_notes;
+
+      const newPatient = await Patient.findOneAndUpdate(
+        { user_id: currentUser.id },
+        patientUpdate,
+        { returnDocument: "after", session }
+      );
+
+      if (!newPatient)
+        throw new AppError(400, requestStatus.FAIL, "Patient not found");
+
+      const exists = await User.exists({
+        email,
+        _id: { $ne: newPatient.user_id },
+      });
+      if (email && exists)
+        throw new AppError(
+          400,
+          requestStatus.FAIL,
+          "this email is already exsits"
+        );
+
+      const userUpdate = {};
+      if (name !== undefined) userUpdate.name = name;
+      if (email !== undefined) userUpdate.email = email;
+      if (phone !== undefined) userUpdate.phone = phone;
 
       const updateUser = await User.findOneAndUpdate(
         { _id: newPatient.user_id },

@@ -5,6 +5,8 @@ import {
   getPatientsService,
   getPatientByIdService,
   updatePatientService,
+  getMyProfileService,
+  updateMyProfileService,
 } from "../services/patient.service.js";
 import { calculateAge } from "../utils/date.util.js";
 import AppError from "../utils/appError.util.js";
@@ -54,6 +56,26 @@ export const updatePatient = asyncWrapper(async (req, res) => {
   if (!id) throw new AppError(400, requestStatus.FAIL, "id is Required");
 
   const results = await updatePatientService(id, data);
+  res
+    .status(200)
+    .json({ code: 200, status: requestStatus.SUCCESS, data: results });
+});
+
+export const getMyProfile = asyncWrapper(async (req, res) => {
+  const currentUser = req.user;
+  const results = await getMyProfileService(currentUser);
+  res.status(200).json({
+    code: 200,
+    status: requestStatus.SUCCESS,
+    data: results,
+  });
+});
+
+export const updateMyProfile = asyncWrapper(async (req, res) => {
+  const data = req.body;
+  const currentUser = req.user;
+
+  const results = await updateMyProfileService(currentUser, data);
   res
     .status(200)
     .json({ code: 200, status: requestStatus.SUCCESS, data: results });

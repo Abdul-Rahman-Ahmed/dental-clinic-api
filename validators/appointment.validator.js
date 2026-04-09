@@ -15,3 +15,26 @@ export const createAppointmentSchema = z.object({
     }),
   notes: z.string().max(500, "very long notes").optional(),
 });
+
+export const updateAppointmentSchema = z.object({
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+  time: z
+    .object({
+      start: z
+        .string()
+        .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
+        .optional(),
+      end: z
+        .string()
+        .regex(/^([01]\d|2[0-3]):([0-5]\d)$/)
+        .optional(),
+    })
+    .refine((data) => data.start < data.end, {
+      message: "End time must be after start time",
+      path: ["end"],
+    }),
+  notes: z.string().max(500, "very long notes").optional(),
+});
