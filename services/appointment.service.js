@@ -57,8 +57,13 @@ export const cancelAppointmentService = async (id) => {
 
   if (!appointment)
     throw new AppError(400, requestStatus.FAIL, "appointment not found");
+
+  if (appointment.status === "cancelled")
+    throw new AppError(400, "Already cancelled");
+
   appointment.status = "canceled";
   await appointment.save();
+  return appointment;
 };
 
 export const CompleteAppointmentService = async (id) => {
@@ -66,8 +71,13 @@ export const CompleteAppointmentService = async (id) => {
 
   if (!appointment)
     throw new AppError(400, requestStatus.FAIL, "appointment not found");
+
+  if (appointment.status === "completed")
+    throw new AppError(400, "Already completed");
+
   appointment.status = "completed";
   await appointment.save();
+  return appointment;
 };
 
 export const getDailyScheduleService = async (doctorId, date) => {
@@ -84,5 +94,5 @@ export const getDailyScheduleService = async (doctorId, date) => {
 export const getDoctorScheduleService = async (doctorId) => {
   return await Appointment.find({
     doctor: doctorId,
-  }).sort({ date: 1, time: { start: 1 } });
+  }).sort({ date: 1, startTime: 1 });
 };
