@@ -1,8 +1,8 @@
 import {
   cancelAppointmentService,
-  CompleteAppointmentService,
+  completeAppointmentService,
   createAppointmentService,
-  getDailyScheduleService,
+  // getDailyScheduleService,
   updateAppointmentService,
 } from "../services/appointment.service.js";
 import asyncWrapper from "../middlewares/asyncWrapper.middleware.js";
@@ -23,9 +23,10 @@ export const createAppointment = asyncWrapper(async (req, res) => {
 
 export const updateAppointment = asyncWrapper(async (req, res) => {
   const id = req.params.id;
+  const currentUser = req.user;
   const data = req.body;
 
-  const results = await updateAppointmentService(id, data);
+  const results = await updateAppointmentService(id, data, currentUser);
   res.status(200).json({
     code: 200,
     status: requestStatus.SUCCESS,
@@ -35,7 +36,9 @@ export const updateAppointment = asyncWrapper(async (req, res) => {
 });
 
 export const cancelAppointment = asyncWrapper(async (req, res) => {
-  const results = await cancelAppointmentService(req.params.id);
+  const currentUser = req.user;
+  const results = await cancelAppointmentService(req.params.id, currentUser);
+
   res.status(200).json({
     code: 200,
     status: requestStatus.SUCCESS,
@@ -45,7 +48,8 @@ export const cancelAppointment = asyncWrapper(async (req, res) => {
 });
 
 export const completeAppointment = asyncWrapper(async (req, res) => {
-  const results = await CompleteAppointmentService(req.params.id);
+  const currentUser = req.user;
+  const results = await completeAppointmentService(req.params.id, currentUser);
   res.status(200).json({
     code: 200,
     status: requestStatus.SUCCESS,
@@ -54,14 +58,15 @@ export const completeAppointment = asyncWrapper(async (req, res) => {
   });
 });
 
-export const getDailySchedule = asyncWrapper(async (req, res) => {
-  const { date } = req.body;
-  const { id } = req.user;
-  const results = await getDailyScheduleService(id, date);
-  res.status(200).json({
-    code: 200,
-    status: requestStatus.SUCCESS,
-    message: `Doctor daily schedule`,
-    data: results,
-  });
-});
+// export const getDailySchedule = asyncWrapper(async (req, res) => {
+//   const { date } = req.body;
+//   const { id } = req.user;
+
+//   const results = await getDailyScheduleService(id, date);
+//   res.status(200).json({
+//     code: 200,
+//     status: requestStatus.SUCCESS,
+//     message: `Doctor daily schedule`,
+//     data: results,
+//   });
+// });

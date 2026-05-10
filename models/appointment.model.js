@@ -14,19 +14,19 @@ const appointmentSchema = new mongoose.Schema(
       required: true,
     },
 
-    date: {
+    startDate: {
       type: Date,
       required: true,
     },
 
-    time: {
-      start: { type: String, required: true },
-      end: { type: String, required: true },
+    endDate: {
+      type: Date,
+      required: true,
     },
 
     status: {
       type: String,
-      enum: ["scheduled", "completed", "canceled", "no_show"],
+      enum: ["scheduled", "completed", "cancelled", "no_show"],
       default: "scheduled",
     },
 
@@ -34,6 +34,7 @@ const appointmentSchema = new mongoose.Schema(
       type: String,
       trim: true,
       maxlength: 500,
+      default: "",
     },
 
     created_by: {

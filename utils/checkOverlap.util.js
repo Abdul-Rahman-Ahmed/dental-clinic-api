@@ -1,18 +1,25 @@
 import Appointment from "../models/appointment.model.js";
 import AppError from "./appError.util.js";
 import requestStatus from "./requestStatus.util.js";
-export const checkOverlap = async (doctor_id, appointmentDate, time) => {
-  const appointment = await Appointment.exists({
+
+export const checkOverlap = async (
+  doctor_id,
+  startDate,
+  endDate,
+  appointmentId = null
+) => {
+  const conflict = await Appointment.findOne({
     doctor_id,
-    date: appointmentDate,
-    "time.start": time.start,
+    startDate: { $lt: endDate },
+    endDate: { $gt: startDate },
+    _id: { $ne: appointmentId },
   });
 
-  if (appointment)
+  if (conflict)
     throw new AppError(
       400,
       requestStatus.FAIL,
-      "this appointment already exsits",
-      appointment
+      "Doctor already has an appointment during this time",
+      conflict
     );
 };
