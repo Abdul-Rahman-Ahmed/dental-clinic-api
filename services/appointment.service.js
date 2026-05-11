@@ -139,22 +139,18 @@ export const completeAppointmentService = async (id, currentUser) => {
 };
 
 /* getDailyScheduleService */
-// export const getDailyScheduleService = async (id, date) => {
-//   const doctor_Id = await Doctor.findOne({ user_id: id });
-//   const appointmentDate = new Date(date);
-//   appointmentDate.setHours(0, 0, 0, 0);
-//   console.log(doctor_Id.id);
+export const getDailyScheduleService = async (id, date) => {
+  const endDate = new Date(date);
+  endDate.setHours(23, 59);
+  const results = await Appointment.find({
+    doctor_id: id,
+    startDate: { $gt: new Date(date), $lt: endDate },
+  }).sort({ startDate: 1 });
 
-//   const results = await Appointment.find({
-//     doctor_id: doctor_Id.id,
-//     date: appointmentDate,
-//     status: "scheduled",
-//   });
-
-//   if (results.length == 0)
-//     throw new AppError(400, requestStatus.FAIL, "Doctor not found");
-//   return results;
-// };
+  if (results.length == 0)
+    throw new AppError(400, requestStatus.FAIL, `appointments not found`);
+  return results;
+};
 
 /* getDoctorScheduleService */
 // export const getDoctorScheduleService = async (doctorId) => {

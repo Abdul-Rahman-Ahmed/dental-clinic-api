@@ -7,7 +7,7 @@ import {
   completeAppointment,
   createAppointment,
   updateAppointment,
-  // getDailySchedule,
+  getDailySchedule,
 } from "../controllers/appointment.controller.js";
 import {
   createAppointmentSchema,
@@ -46,6 +46,11 @@ router.patch(
   completeAppointment
 );
 
-// router.post("/doctor/daily", protect, authorized("doctor"), getDailySchedule);
+router.post(
+  "/doctor/daily",
+  protect,
+  authorized("doctor", "admin", "receptionist", "super_admin"),
+  getDailySchedule
+);
 
 export default router;

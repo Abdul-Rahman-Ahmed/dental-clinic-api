@@ -2,7 +2,7 @@ import {
   cancelAppointmentService,
   completeAppointmentService,
   createAppointmentService,
-  // getDailyScheduleService,
+  getDailyScheduleService,
   updateAppointmentService,
 } from "../services/appointment.service.js";
 import asyncWrapper from "../middlewares/asyncWrapper.middleware.js";
@@ -58,15 +58,14 @@ export const completeAppointment = asyncWrapper(async (req, res) => {
   });
 });
 
-// export const getDailySchedule = asyncWrapper(async (req, res) => {
-//   const { date } = req.body;
-//   const { id } = req.user;
+export const getDailySchedule = asyncWrapper(async (req, res) => {
+  const { date, id } = req.body;
 
-//   const results = await getDailyScheduleService(id, date);
-//   res.status(200).json({
-//     code: 200,
-//     status: requestStatus.SUCCESS,
-//     message: `Doctor daily schedule`,
-//     data: results,
-//   });
-// });
+  const results = await getDailyScheduleService(id, date);
+  res.status(200).json({
+    code: 200,
+    status: requestStatus.SUCCESS,
+    message: `Doctor has ${results.length} appointments`,
+    data: results,
+  });
+});
