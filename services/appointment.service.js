@@ -140,21 +140,42 @@ export const completeAppointmentService = async (id, currentUser) => {
 
 /* getDailyScheduleService */
 export const getDailyScheduleService = async (id, date) => {
-  const endDate = new Date(date);
-  endDate.setHours(23, 59);
+  const doctor = await Doctor.findById(id);
+  if (!doctor) throw new AppError(404, requestStatus.FAIL, "doctor not found");
+
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(startOfDay);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  if (isNaN(startOfDay.getTime())) {
+    throw new AppError(400, requestStatus.FAIL, "Invalid date");
+  }
+
   const results = await Appointment.find({
     doctor_id: id,
-    startDate: { $gt: new Date(date), $lt: endDate },
-  }).sort({ startDate: 1 });
+    startDate: {
+      $gte: startOfDay,
+      $lte: endOfDay,
+    },
+  })
+    .sort({ startDate: 1 })
+    .lean();
 
-  if (results.length == 0)
-    throw new AppError(400, requestStatus.FAIL, `appointments not found`);
   return results;
 };
 
 /* getDoctorScheduleService */
-// export const getDoctorScheduleService = async (doctorId) => {
-//   return await Appointment.find({
-//     doctor: doctorId,
-//   }).sort({ date: 1, timeStart: 1 });
-// };
+export const getDoctorScheduleService = async (id) => {
+  const doctor = await Doctor.findById(id);
+  if (!doctor) throw new AppError(404, requestStatus.FAIL, "doctor not found");
+
+  const results = await Appointment.find({
+    doctor_id: id,
+  })
+    .sort({ startDate: 1 })
+    .lean();
+
+  return results;
+};
