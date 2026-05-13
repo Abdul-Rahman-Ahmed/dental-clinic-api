@@ -19,3 +19,8 @@ export const updateAppointmentSchema = z.object({
     .optional(),
   notes: z.string().max(500, "very long notes").optional(),
 });
+
+export const paginationSchema = z.object({
+  page: z.coerce.number().min(1).optional(),
+  limit: z.coerce.number().min(1).max(100).optional(),
+});

@@ -17,7 +17,7 @@ export const createAppointment = asyncWrapper(async (req, res) => {
   res.status(201).json({
     code: 201,
     status: requestStatus.SUCCESS,
-    message: "create appointment succssefully",
+    message: "create appointment successfully",
     data: results,
   });
 });
@@ -31,7 +31,7 @@ export const updateAppointment = asyncWrapper(async (req, res) => {
   res.status(200).json({
     code: 200,
     status: requestStatus.SUCCESS,
-    message: "update the appointment succssefully",
+    message: "update the appointment successfully",
     data: results,
   });
 });
@@ -43,7 +43,7 @@ export const cancelAppointment = asyncWrapper(async (req, res) => {
   res.status(200).json({
     code: 200,
     status: requestStatus.SUCCESS,
-    message: `canceled appointment succssefully`,
+    message: `canceled appointment successfully`,
     data: results,
   });
 });
@@ -54,15 +54,17 @@ export const completeAppointment = asyncWrapper(async (req, res) => {
   res.status(200).json({
     code: 200,
     status: requestStatus.SUCCESS,
-    message: `completed appointment succssefully`,
+    message: `completed appointment successfully`,
     data: results,
   });
 });
 
 export const getDailySchedule = asyncWrapper(async (req, res) => {
-  const { date, id } = req.body;
+  const { id } = req.params;
+  const { date } = req.query;
+  const currentUser = req.user;
 
-  const results = await getDailyScheduleService(id, date);
+  const results = await getDailyScheduleService(id, date, currentUser);
 
   res.status(200).json({
     code: 200,
@@ -73,12 +75,15 @@ export const getDailySchedule = asyncWrapper(async (req, res) => {
 });
 
 export const getDoctorSchedule = asyncWrapper(async (req, res) => {
-  const { id } = req.body;
-  const results = await getDoctorScheduleService(id);
+  const { id } = req.params;
+  const { page, limit } = req.query;
+  const currentUser = req.user;
+
+  const results = await getDoctorScheduleService(id, page, limit, currentUser);
   res.status(200).json({
     code: 200,
     status: requestStatus.SUCCESS,
-    message: `Doctor has ${results.length} appointments`,
+    message: `Doctor appointments`,
     data: results,
   });
 });

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { APPOINTMENT_STATUS } from "../constants/appointments.constants.js";
 
 const appointmentSchema = new mongoose.Schema(
   {
@@ -26,8 +27,13 @@ const appointmentSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["scheduled", "completed", "cancelled", "no_show"],
-      default: "scheduled",
+      enum: [
+        APPOINTMENT_STATUS.CANCELLED,
+        APPOINTMENT_STATUS.COMPLETED,
+        APPOINTMENT_STATUS.NO_SHOW,
+        APPOINTMENT_STATUS.SCHEDULED,
+      ],
+      default: APPOINTMENT_STATUS.SCHEDULED,
     },
 
     notes: {
@@ -52,4 +58,16 @@ const appointmentSchema = new mongoose.Schema(
   }
 );
 
+appointmentSchema.index({
+  doctor_id: 1,
+  startDate: 1,
+});
+
+appointmentSchema.index({
+  patient_id: 1,
+});
+
+appointmentSchema.index({
+  status: 1,
+});
 export default mongoose.model("Appointment", appointmentSchema);

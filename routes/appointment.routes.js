@@ -48,16 +48,16 @@ router.patch(
 );
 
 router.post(
-  "/doctor/daily",
+  "/doctor/:id/schedule/daily",
   protect,
   authorized("doctor", "admin", "receptionist", "super_admin"),
   getDailySchedule
 );
 
 router.post(
-  "/doctor/schedule",
+  "/doctor/:id/schedule",
   protect,
-  authorized("admin", "receptionist", "super_admin"),
+  authorized("admin", "receptionist", "super_admin", "doctor"),
   getDoctorSchedule
 );
 

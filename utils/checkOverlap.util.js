@@ -6,14 +6,15 @@ export const checkOverlap = async (
   doctor_id,
   startDate,
   endDate,
-  appointmentId = null
+  appointmentId = null,
+  session = null
 ) => {
   const conflict = await Appointment.findOne({
     doctor_id,
     startDate: { $lt: endDate },
     endDate: { $gt: startDate },
     _id: { $ne: appointmentId },
-  });
+  }).session(session);
 
   if (conflict)
     throw new AppError(

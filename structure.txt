@@ -1,12 +1,18 @@
+npx tree-node-cli -I "node_modules|.git|.vscode" > structure.txt
+
 dental-clinic-api
 ├── README.MD
 ├── app.js
 ├── config
 │   └── db.js
+├── constants
+│   └── appointments.constants.js
 ├── controllers
 │   ├── appointment.controller.js
 │   ├── auth.controller.js
-│   └── users.controller.js
+│   ├── doctor.controller.js
+│   ├── patient.controller.js
+│   └── user.controller.js
 ├── middlewares
 │   ├── asyncWrapper.middleware.js
 │   ├── auth.middleware.js
@@ -22,22 +28,30 @@ dental-clinic-api
 ├── routes
 │   ├── appointment.routes.js
 │   ├── auth.routes.js
+│   ├── doctor.routes.js
+│   ├── patient.route.js
 │   └── user.routes.js
 ├── server.js
 ├── services
 │   ├── appointment.service.js
 │   ├── auth.service.js
+│   ├── doctor.service.js
+│   ├── patient.service.js
 │   └── user.service.js
-├── structure.txt
 ├── utils
 │   ├── appError.util.js
+│   ├── checkOverlap.util.js
 │   ├── checkUser.util.js
 │   ├── createToken.util.js
 │   ├── date.util.js
+│   ├── formatDate.util.js
 │   ├── password.util.js
 │   ├── requestStatus.util.js
-│   └── roles.util.js
+│   ├── roles.util.js
+│   └── validateAppointmentStatus.util.js
 └── validators
     ├── appointment.validator.js
     ├── auth.validator.js
+    ├── doctor.validator.js
+    ├── patient.validator.js
     └── user.validator.js
