@@ -51,8 +51,9 @@ export const getUsersService = async (page = 1, limit = 10, currentRole) => {
 };
 
 export const getUsersByRoleService = async (role, page, limit, currentRole) => {
-  if (currentRole === "admin" && (role === "super_admin" || "admin"))
+  if (currentRole === "admin" && (role === "super_admin" || role === "admin"))
     throw new AppError(403, requestStatus.FAIL, "Not authorized");
+
   const skip = (page - 1) * limit;
   return await User.find({ role }).skip(skip).limit(limit).lean();
 };
@@ -84,10 +85,10 @@ export const modifyUserService = async (id, data, currentRole) => {
     );
   }
 
-  Object.assign(user, data);
+  user.name = data.name || user.name;
+  user.email = data.email || user.email;
+  user.phone = data.phone || user.phone;
   await user.save();
 
   return user;
 };
-
-export const getAppointmentsService = async () => {};

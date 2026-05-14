@@ -72,7 +72,7 @@ export const createAppointmentService = async (currentUser, data) => {
     await session.abortTransaction();
     throw err;
   } finally {
-    session.endSession;
+    await session.endSession();
   }
 };
 
@@ -82,6 +82,14 @@ export const updateAppointmentService = async (id, data, currentUser) => {
   const appointment = await Appointment.findById(id);
   if (!appointment) {
     throw new AppError(404, requestStatus.FAIL, "Appointment not found");
+  }
+
+  const patient = await Patient.findById(appointment.patient_id);
+  if (
+    currentUser.role === "patient" &&
+    currentUser.id !== patient.user_id.toString()
+  ) {
+    throw new AppError(400, requestStatus.FAIL, "not authorized");
   }
 
   // check appointments status
@@ -144,7 +152,14 @@ export const cancelAppointmentService = async (id, currentUser) => {
   // check appointment exists
   const appointment = await Appointment.findById(id);
 
-  // valdiate appointment
+  const patient = await Patient.findById(appointment.patient_id);
+  if (
+    currentUser.role === "patient" &&
+    currentUser.id !== patient.user_id.toString()
+  ) {
+    throw new AppError(400, requestStatus.FAIL, "not authorized");
+  }
+  // validate appointment
   validateAppointmentStatus(appointment, [
     APPOINTMENT_STATUS.COMPLETED,
     APPOINTMENT_STATUS.CANCELLED,
@@ -164,7 +179,14 @@ export const completeAppointmentService = async (id, currentUser) => {
   // check appointment is exists
   const appointment = await Appointment.findById(id);
 
-  // valdiate appointment
+  const doctor = await Doctor.findById(appointment.doctor_id);
+  if (
+    currentUser.role === "doctor" &&
+    currentUser.id !== doctor.user_id.toString()
+  ) {
+    throw new AppError(400, requestStatus.FAIL, "not authorized");
+  }
+  // validate appointment
   validateAppointmentStatus(appointment, [
     APPOINTMENT_STATUS.COMPLETED,
     APPOINTMENT_STATUS.CANCELLED,

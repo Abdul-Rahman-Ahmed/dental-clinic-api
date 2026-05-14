@@ -128,7 +128,7 @@ export const updatePatientService = async (id, data) => {
 
 export const getMyProfileService = async (currentUser) => {
   return await Patient.findOne({ user_id: currentUser.id })
-    .populate("user_id", "name emaill phone")
+    .populate("user_id", "name email phone")
     .lean();
 };
 

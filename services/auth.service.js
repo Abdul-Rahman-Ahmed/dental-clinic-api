@@ -12,9 +12,6 @@ export const registerUserService = async (data) => {
   if (await checkUserExists(email))
     throw new AppError(400, requestStatus.FAIL, "User already exists");
 
-  if (role === "super_admin")
-    throw new AppError(403, requestStatus.FAIL, "Not allowed");
-
   const hashedPassword = await hashPassword(password, 10);
 
   return await User.create({
@@ -84,17 +81,14 @@ export const refreshTokenService = async (refreshToken) => {
   };
 };
 
-export const logoutUseService = async (refreshToken) => {
-  const token = refreshToken;
-  if (!token) return res.sendStatus(204);
-
-  const decoded = verifyToken(token);
+export const logoutUserService = async (refreshToken) => {
+  const decoded = verifyToken(refreshToken);
   const user = await User.findOne(
     { _id: decoded.id, isActive: true },
     "+refreshToken"
   );
 
-  if (user && (await comparePassword(token, user.refreshToken))) {
+  if (user && (await comparePassword(refreshToken, user.refreshToken))) {
     user.refreshToken = null;
     await user.save();
   }

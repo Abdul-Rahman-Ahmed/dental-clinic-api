@@ -2,7 +2,7 @@ import asyncWrapper from "../middlewares/asyncWrapper.middleware.js";
 import requestStatus from "../utils/requestStatus.util.js";
 import {
   loginUserService,
-  logoutUseService,
+  logoutUserService,
   refreshTokenService,
   registerUserService,
 } from "../services/auth.service.js";
@@ -65,7 +65,7 @@ export const logoutUser = asyncWrapper(async (req, res) => {
   const token = req.cookies.refreshToken;
   if (!token) return res.sendStatus(204);
 
-  await logoutUseService(token);
+  await logoutUserService(token);
 
   res.clearCookie("refreshToken", {
     httpOnly: true,
