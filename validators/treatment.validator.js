@@ -12,9 +12,27 @@ export const createTreatmentValidator = z.object({
   treated_at: z.coerce.date(),
 });
 
-export const getTreatmentValidator = z.object({
+export const getTreatmentQueryValidator = z.object({
   page: z.coerce.number().min(1).optional(),
   limit: z.coerce.number().min(1).optional(),
+  patient_id: z.string().optional(),
+  doctor_id: z.string().optional(),
+  appointment_id: z.string().optional(),
+  status: z
+    .enum(
+      [
+        TREATMENT_STATUS.CANCELLED,
+        TREATMENT_STATUS.COMPLETED,
+        TREATMENT_STATUS.IN_PROGRESS,
+      ],
+      {
+        errorMap: () => ({
+          message: `Status must be one of: ${TREATMENT_STATUS.CANCELLED}, ${TREATMENT_STATUS.COMPLETED}, ${TREATMENT_STATUS.IN_PROGRESS}`,
+        }),
+      }
+    )
+    .optional(),
+  tooth_number: z.coerce.number().optional(),
 });
 
 export const updateTreatmentValidator = z.object({

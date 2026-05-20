@@ -22,19 +22,25 @@ export const createTreatment = asyncWrapper(async (req, res) => {
   });
 });
 
-export const getTreatment = asyncWrapper(async (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
-  const { total, treatments } = await getTreatmentsService(page, limit);
+export const getTreatments = asyncWrapper(async (req, res) => {
+  const currentUser = req.user;
+  const query = req.query;
+  const { total, treatments } = await getTreatmentsService(
+    query.page,
+    query.limit,
+    query,
+    currentUser
+  );
 
   res.status(200).json({
     code: 200,
     status: requestStatus.SUCCESS,
-    message: "Get treatment",
+    message: "Treatments fetched successfully",
     data: {
       total,
-      pages: Math.ceil(total / limit),
-      page: Number(page),
-      limit: Number(limit),
+      pages: Math.ceil(total / query.limit),
+      page: Number(query.page),
+      limit: Number(query.limit),
       treatments,
     },
   });
@@ -42,12 +48,13 @@ export const getTreatment = asyncWrapper(async (req, res) => {
 
 export const getTreatmentById = asyncWrapper(async (req, res) => {
   const { id } = req.params;
-  const treatment = await getTreatmentByIdService(id);
+  const currentUser = req.user;
+  const treatment = await getTreatmentByIdService(id, currentUser);
 
   res.status(200).json({
     code: 200,
     status: requestStatus.SUCCESS,
-    message: "Get treatment by ID",
+    message: "Treatment fetched successfully",
     data: treatment,
   });
 });

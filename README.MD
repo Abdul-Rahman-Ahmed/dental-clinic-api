@@ -1,48 +1,48 @@
 # 🦷 Dental Clinic Management API
 
-A layered backend API for managing dental clinic operations: authentication, role-based access control, user administration, doctor and patient records, and appointment scheduling with overlap prevention.
+A backend API for running a dental clinic system with authentication, role-based access control, doctor and patient management, and appointment scheduling with overlap prevention.
 
-## ✨ Features
+Built with `Node.js`, `Express`, `MongoDB`, `Mongoose`, `JWT`, and `Zod`.
 
-- JWT authentication with access tokens and refresh tokens
-- HttpOnly refresh token cookie rotation
-- Role-based authorization with `super_admin`, `admin`, `receptionist`, `doctor`, and `patient`
-- User management for admins and receptionists
-- Doctor profile creation with specialization and working hours
-- Patient profile creation and self-service profile updates
+## ✨ Highlights
+
+- `JWT` access authentication
+- Refresh token rotation with `HttpOnly` cookies
+- Role-based authorization for `super_admin`, `admin`, `receptionist`, `doctor`, and `patient`
+- Admin, doctor, and patient management flows
 - Appointment booking, rescheduling, cancellation, and completion
-- Appointment overlap prevention per doctor
-- Zod request validation
+- Doctor schedule lookup with daily and paginated views
+- Appointment overlap prevention
+- Request validation with `Zod`
 - Centralized error handling
-- Helmet, rate limiting, logging, and cookie parsing
-- MongoDB transactions for multi-document flows
+- Security middleware with `helmet`, `cors`, `cookie-parser`, `morgan`, and `express-rate-limit`
 
 ## 🧰 Tech Stack
 
-- Node.js
-- Express
-- MongoDB
-- Mongoose
-- JSON Web Token
-- Zod
-- bcryptjs
-- Helmet
-- express-rate-limit
-- Morgan
-- cookie-parser
+| Layer | Tools |
+| --- | --- |
+| Runtime | `Node.js` |
+| Framework | `Express` |
+| Database | `MongoDB` |
+| ODM | `Mongoose` |
+| Auth | `jsonwebtoken` |
+| Validation | `Zod` |
+| Security | `helmet`, `express-rate-limit`, `cookie-parser`, `cors` |
+| Logging | `morgan` |
+| Dev | `nodemon` |
 
 ## 🏗️ Architecture
 
-The project follows a layered structure:
+The project uses a layered structure to keep responsibilities separate:
 
-- `routes`: endpoint definitions and middleware chains
-- `controllers`: request/response handling
-- `services`: business logic and database operations
-- `models`: Mongoose schemas and indexes
-- `middlewares`: auth, authorization, validation, and async error forwarding
-- `validators`: Zod schemas
-- `utils`: shared helpers
-- `constants`: shared enums and configuration values
+- `routes/` defines endpoints and middleware chains
+- `controllers/` handles request and response formatting
+- `services/` contains business logic and database operations
+- `models/` defines Mongoose schemas and indexes
+- `validators/` holds `Zod` schemas
+- `middlewares/` contains auth, authorization, validation, and async wrappers
+- `utils/` provides shared helpers
+- `constants/` stores shared enums and configuration values
 
 ## 📁 Project Structure
 
@@ -51,9 +51,7 @@ dental-clinic-api
 |-- app.js
 |-- server.js
 |-- config/
-|   |-- db.js
 |-- constants/
-|   |-- appointments.constants.js
 |-- controllers/
 |-- middlewares/
 |-- models/
@@ -66,75 +64,76 @@ dental-clinic-api
 
 ## 🔐 Authentication Flow
 
-1. `POST /api/auth/login` verifies the user and password.
-2. The server returns an access token in the JSON response.
-3. The server stores a refresh token in an HttpOnly cookie named `refreshToken`.
-4. The refresh token hash is stored on the user document.
-5. Protected routes require `Authorization: Bearer <access_token>`.
-6. `POST /api/auth/refreshToken` rotates the refresh token and returns a new access token.
-7. `POST /api/auth/logout` clears the cookie and removes the stored refresh token hash.
+1. A user logs in through `POST /api/auth/login`.
+2. The API verifies the email, password, and active status.
+3. A short-lived access token is returned in the JSON response.
+4. A refresh token is stored in an `HttpOnly` cookie named `refreshToken`.
+5. The refresh token is hashed before being stored in the database.
+6. Protected routes require `Authorization: Bearer <access_token>`.
+7. `POST /api/auth/refreshToken` rotates the refresh token and returns a new access token.
+8. `POST /api/auth/logout` clears the cookie and removes the stored refresh token.
 
-Token lifetimes:
+### Token Lifetime
 
 | Token | Lifetime | Transport |
 | --- | --- | --- |
 | Access token | `15m` | JSON response / Bearer header |
-| Refresh token | `7d` | HttpOnly cookie |
+| Refresh token | `7d` | `HttpOnly` cookie |
 
-## 🛡️ Role-Based Access Control
+## 🛡️ Roles and Access
 
 Authorization is enforced with `protect` and `authorized(...roles)`.
 
-| Role | Permissions |
+| Role | Main Capabilities |
 | --- | --- |
-| `super_admin` | Register users, create admins, manage user status, access admin features |
-| `admin` | Create receptionists and doctors, list users except admin/super admin, access schedules |
+| `super_admin` | Register users, create admins, manage user status, access administrative features |
+| `admin` | Create receptionists and doctors, view users except privileged roles, access schedules |
 | `receptionist` | Create patients, update patient records, manage appointments |
 | `doctor` | View own schedules and complete own appointments |
-| `patient` | View and update own profile, manage own appointments |
-
-## 🔒 Security
-
-- Passwords are hashed with bcrypt before storage.
-- Refresh tokens are stored hashed, not in plain text.
-- Refresh token cookie uses `httpOnly` and `sameSite: "strict"`.
-- Cookies are marked `secure` in production.
-- Helmet sets common security headers.
-- Rate limiting is set to `100` requests per `15` minutes.
-- Validation errors and app errors are normalized by a global error handler.
-
-## ✅ Validation
-
-Zod is used to validate request bodies before controllers run.
-
-Covered areas include:
-
-- auth register and login
-- admin/receptionist creation
-- doctor creation
-- patient creation and updates
-- appointment creation and updates
+| `patient` | View profile, update profile, and manage own appointments |
 
 ## 📅 Appointment Rules
 
-- Appointment duration is `30` minutes.
-- Past appointments cannot be created or rescheduled.
-- Appointment overlap is blocked per doctor.
-- Only `scheduled` appointments can be updated.
-- Completed or cancelled appointments cannot be changed again through cancel/complete flows.
-- Patients can update or cancel only their own appointments.
-- Doctors can complete only their own appointments.
-- Doctors can view only schedules linked to their own doctor profile.
+- Each appointment session is `30` minutes
+- Past appointments cannot be created or rescheduled
+- Doctors cannot have overlapping appointments
+- Only `scheduled` appointments can be updated
+- Cancelled or completed appointments cannot be completed/cancelled again
+- Patients can update or cancel only their own appointments
+- Doctors can complete only appointments linked to their own doctor profile
+- Doctors can view only schedules linked to their own profile
 
-Overlap rule:
+### Overlap Logic
 
 ```js
 startDate < requestedEndDate && endDate > requestedStartDate
 ```
 
+## ✅ Validation
+
+Request validation is handled using `Zod`.
+
+Covered flows include:
+
+- auth register and login
+- user creation and modification
+- doctor creation
+- patient creation and profile updates
+- appointment creation and update
+
+## 🔒 Security
+
+- Passwords are hashed with `bcryptjs`
+- Refresh tokens are stored hashed, not as plain text
+- Refresh cookie uses `httpOnly`
+- Refresh cookie uses `sameSite: "strict"`
+- Cookies become `secure` in production
+- Global rate limit: `100` requests per `15` minutes
+- Centralized error handling for validation and runtime errors
+
 ## 📄 Pagination
 
-Pagination is implemented in:
+Pagination is currently available in:
 
 | Endpoint | Parameters |
 | --- | --- |
@@ -159,9 +158,9 @@ http://localhost:5000/api
 | Method | Endpoint | Access | Description |
 | --- | --- | --- | --- |
 | `POST` | `/auth/register` | `super_admin` | Register a new user by role |
-| `POST` | `/auth/login` | Public | Login and receive access token + refresh cookie |
-| `POST` | `/auth/refreshToken` | Refresh cookie | Rotate refresh token and issue new access token |
-| `POST` | `/auth/logout` | Refresh cookie | Clear refresh token cookie and stored token |
+| `POST` | `/auth/login` | Public | Login and receive access token plus refresh cookie |
+| `POST` | `/auth/refreshToken` | Refresh cookie | Rotate refresh token and issue a new access token |
+| `POST` | `/auth/logout` | Refresh cookie | Clear refresh cookie and stored token |
 
 ### 👥 Users
 
@@ -177,18 +176,18 @@ http://localhost:5000/api
 
 | Method | Endpoint | Roles | Description |
 | --- | --- | --- | --- |
-| `POST` | `/doctors` | `super_admin`, `admin` | Create doctor user and doctor profile |
+| `POST` | `/doctors` | `super_admin`, `admin` | Create doctor account and doctor profile |
 | `GET` | `/doctors` | `super_admin`, `admin` | List doctors |
 
 ### 🧑‍💼 Patients
 
 | Method | Endpoint | Roles | Description |
 | --- | --- | --- | --- |
-| `POST` | `/patients` | `super_admin`, `receptionist` | Create patient user and profile |
+| `POST` | `/patients` | `super_admin`, `receptionist` | Create patient account and profile |
 | `GET` | `/patients` | `super_admin`, `receptionist` | List patients |
-| `GET` | `/patients/me` | `patient` | Get authenticated patient profile |
-| `PATCH` | `/patients/me` | `patient` | Update authenticated patient profile |
-| `PATCH` | `/patients/:id` | `receptionist` | Update a patient profile |
+| `GET` | `/patients/me` | `patient` | Get current patient profile |
+| `PATCH` | `/patients/me` | `patient` | Update current patient profile |
+| `PATCH` | `/patients/:id` | `receptionist` | Update patient profile |
 | `GET` | `/patients/:id` | `super_admin`, `receptionist` | Get patient by id |
 
 ### 🗓️ Appointments
@@ -199,12 +198,12 @@ http://localhost:5000/api
 | `PATCH` | `/appointments/:id` | `patient`, `receptionist` | Update a scheduled appointment |
 | `PATCH` | `/appointments/:id/cancel` | `patient`, `receptionist` | Cancel an appointment |
 | `PATCH` | `/appointments/:id/complete` | `doctor` | Complete an appointment |
-| `POST` | `/appointments/doctor/:id/schedule/daily` | `doctor`, `admin`, `receptionist`, `super_admin` | Get daily schedule |
+| `POST` | `/appointments/doctor/:id/schedule/daily` | `doctor`, `admin`, `receptionist`, `super_admin` | Get doctor daily schedule |
 | `POST` | `/appointments/doctor/:id/schedule` | `doctor`, `admin`, `receptionist`, `super_admin` | Get paginated doctor schedule |
 
 ## 🧪 Example Requests
 
-### 🔓 Login
+### Login
 
 ```http
 POST /api/auth/login
@@ -216,7 +215,7 @@ Content-Type: application/json
 }
 ```
 
-### ➕ Create Appointment
+### Create Appointment
 
 ```http
 POST /api/appointments
@@ -232,7 +231,7 @@ Content-Type: application/json
 }
 ```
 
-### 📋 Get Doctor Daily Schedule
+### Get Daily Doctor Schedule
 
 ```http
 POST /api/appointments/doctor/:id/schedule/daily?date=2026-06-01
@@ -253,8 +252,8 @@ JWT_REFRESH_SECRET=your_refresh_token_secret
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `PORT` | No | Server port, defaults to `5000` |
-| `NODE_ENV` | No | Enables secure cookies when set to `production` |
+| `PORT` | No | Defaults to `5000` |
+| `NODE_ENV` | No | Enables secure cookies in production |
 | `MONGO_URI` | Yes | MongoDB connection string |
 | `JWT_SECRET` | Yes | Access token signing secret |
 | `JWT_REFRESH_SECRET` | Yes | Refresh token signing secret |
@@ -268,15 +267,15 @@ npm install
 npm start
 ```
 
-Server base URL:
+Server URL:
 
 ```txt
 http://localhost:5000
 ```
 
-## 📬 Response Format
+## 📬 Response Shape
 
-Success response example:
+Success example:
 
 ```json
 {
@@ -306,10 +305,10 @@ Validation error example:
 ## 🛠️ Current Gaps
 
 - No automated tests yet
-- No OpenAPI or Swagger documentation
-- No query validation for some pagination/filter endpoints
-- No Docker setup
-- No CI pipeline
+- No Swagger or OpenAPI docs yet
+- No Docker setup yet
+- No CI workflow yet
+- Some query validation is still limited
 
 ## 👤 Author
 

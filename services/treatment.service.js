@@ -72,11 +72,19 @@ export const createTreatmentService = async (
   return await treatment.save();
 };
 
-export const getTreatmentsService = async (page, limit) => {
+export const getTreatmentsService = async (
+  page,
+  limit,
+  params,
+  currentUser
+) => {
   const skip = (page - 1) * limit;
-  const treatments = await Treatment.find()
+  const treatments = await Treatment.find({
+    ...params,
+    ...(currentUser.role === "doctor" && { created_by: currentUser.id }),
+  })
     .select(
-      "title diagnoses procedure_notes tooth_number treated_at modified_by"
+      "title diagnoses procedure_notes tooth_number treated_at created_by modified_by"
     )
     .populate({
       path: "patient_id",
@@ -95,17 +103,24 @@ export const getTreatmentsService = async (page, limit) => {
       },
     })
     .populate("modified_by", "name")
+    .populate("created_by", "name")
     .skip(skip)
     .limit(limit)
     .sort({ createdAt: -1 })
     .lean();
 
-  const total = await Treatment.countDocuments();
+  const total = await Treatment.countDocuments({
+    ...params,
+    ...(currentUser.role === "doctor" && { created_by: currentUser.id }),
+  });
+
+  if (treatments.length === 0)
+    throw new AppError(404, requestStatus.FAIL, "No treatments found");
 
   return { treatments, total };
 };
 
-export const getTreatmentByIdService = async (id) => {
+export const getTreatmentByIdService = async (id, currentUser) => {
   checkInvalidID(id, "treatment");
   const treatment = await Treatment.findById(id)
     .select(
@@ -128,6 +143,12 @@ export const getTreatmentByIdService = async (id) => {
       },
     })
     .lean();
+
+  if (
+    currentUser.role === "doctor" &&
+    treatment.doctor_id.user_id.id.toString() !== currentUser.id
+  )
+    throw new AppError(403, requestStatus.FAIL, "Unauthorized");
 
   if (!treatment)
     throw new AppError(404, requestStatus.FAIL, "Treatment not found");

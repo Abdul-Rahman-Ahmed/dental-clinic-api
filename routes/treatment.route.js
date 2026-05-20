@@ -1,13 +1,13 @@
 import express from "express";
 import {
   createTreatmentValidator,
-  getTreatmentValidator,
   updateTreatmentValidator,
   updateTreatmentStatusValidator,
+  getTreatmentQueryValidator,
 } from "../validators/treatment.validator.js";
 import {
   createTreatment,
-  getTreatment,
+  getTreatments,
   getTreatmentById,
   updateTreatment,
   updateTreatmentStatus,
@@ -30,8 +30,8 @@ router.get(
   "/",
   protect,
   authorized("super_admin", "admin", "receptionist", "doctor"),
-  validate(getTreatmentValidator),
-  getTreatment
+  validate(getTreatmentQueryValidator, "query"),
+  getTreatments
 );
 
 router.get(
